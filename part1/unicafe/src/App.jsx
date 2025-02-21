@@ -17,22 +17,30 @@ const Statistics = ({ good, neutral, bad }) => {
   const all = good + neutral + bad;
   const average = (good + bad * -1) / all || 0;
   const positive = (good / all) * 100 || 0;
-  return (
-    <div>
-      <h1>statistics</h1>
-      <span>good {good}</span>
-      <br />
-      <span>neutral {neutral}</span>
-      <br />
-      <span>bad {bad}</span>
-      <br />
-      <span>all {all}</span>
-      <br />
-      <span>average {average}</span>
-      <br />
-      <span>positive {positive} %</span>
-    </div>
-  );
+  if (average === 0)
+    return (
+      <div>
+        <h1>statistics</h1>
+        <div>No feedback given</div>
+      </div>
+    );
+  else
+    return (
+      <div>
+        <h1>statistics</h1>
+        <span>good {good}</span>
+        <br />
+        <span>neutral {neutral}</span>
+        <br />
+        <span>bad {bad}</span>
+        <br />
+        <span>all {all}</span>
+        <br />
+        <span>average {average}</span>
+        <br />
+        <span>positive {positive} %</span>
+      </div>
+    );
 };
 
 const Button = ({ onClick, text }) => {
