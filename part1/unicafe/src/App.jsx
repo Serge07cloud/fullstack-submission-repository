@@ -13,10 +13,19 @@ const Feedback = ({ handleGood, handleNeutral, handleBad }) => {
   );
 };
 
+const StatisticLine = ({ text, value }) => {
+  return (
+    <div>
+      {text} {value}
+    </div>
+  );
+};
+
 const Statistics = ({ good, neutral, bad }) => {
   const all = good + neutral + bad;
   const average = (good + bad * -1) / all || 0;
   const positive = (good / all) * 100 || 0;
+
   if (average === 0)
     return (
       <div>
@@ -28,17 +37,12 @@ const Statistics = ({ good, neutral, bad }) => {
     return (
       <div>
         <h1>statistics</h1>
-        <span>good {good}</span>
-        <br />
-        <span>neutral {neutral}</span>
-        <br />
-        <span>bad {bad}</span>
-        <br />
-        <span>all {all}</span>
-        <br />
-        <span>average {average}</span>
-        <br />
-        <span>positive {positive} %</span>
+        <StatisticLine text="good" value={good} />
+        <StatisticLine text="neutral" value={neutral} />
+        <StatisticLine text="bad" value={bad} />
+        <StatisticLine text="all" value={all} />
+        <StatisticLine text="average" value={average} />
+        <StatisticLine text="positive" value={positive + " %"} />
       </div>
     );
 };
