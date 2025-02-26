@@ -2,16 +2,24 @@ import { useState } from "react";
 
 const Button = ({ text, handleClick }) => {
   return (
-    <div>
-      <button type="button" onClick={handleClick}>
-        {text}
-      </button>
-    </div>
+    <button type="button" onClick={handleClick}>
+      {text}
+    </button>
   );
 };
 
-const getRandomIndex = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+const Votes = ({ total }) => {
+  return <div>has {total} votes</div>;
+};
+
+const Anecdote = ({ title, content, votes }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      <div>{content}</div>
+      <Votes total={votes} />
+    </div>
+  );
 };
 
 const App = () => {
@@ -27,14 +35,33 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
-  const length = anecdotes.length;
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
+  const [highest, setHighest] = useState(0);
+
+  const noteAnecdote = () => {
+    const copy = [...votes];
+    copy[selected] += 1;
+    setVotes(copy);
+    setHighest(Math.max(...copy));
+  };
+
+  const changeAnecdote = () =>
+    setSelected(Math.floor(Math.random() * anecdotes.length));
 
   return (
     <div>
-      {anecdotes[selected]}
-      <Button
-        text="next anecdote"
-        handleClick={() => setSelected(getRandomIndex(0, length))}
+      <Anecdote
+        title="Anecdote of the day"
+        content={anecdotes[selected]}
+        votes={votes[selected]}
+      />
+      <Button text="note" handleClick={noteAnecdote} />
+      <Button text="next anecdote" handleClick={changeAnecdote} />
+
+      <Anecdote
+        title="Anecdote with most votes"
+        content={anecdotes[votes.findIndex((element) => element === highest)]}
+        votes={highest}
       />
     </div>
   );
