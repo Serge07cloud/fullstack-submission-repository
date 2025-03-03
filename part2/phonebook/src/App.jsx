@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Person = ({ name, number }) => {
+const Persons = ({ name, number }) => {
   return (
     <div>
       {name} {number}
@@ -8,12 +8,42 @@ const Person = ({ name, number }) => {
   );
 };
 
+const Filter = ({ value, onChange }) => {
+  return (
+    <div>
+      filter shown with <input value={value} onChange={onChange} />
+    </div>
+  );
+};
+
+const PersonForm = ({
+  onSubmit,
+  nameValue,
+  onChangeName,
+  phoneValue,
+  onChangePhone,
+}) => {
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        name: <input value={nameValue} onChange={onChangeName} />
+      </div>
+      <div>
+        number: <input value={phoneValue} onChange={onChangePhone} />
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  );
+};
+
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
+    { name: "Arto Hellas", number: "040-123456" },
+    { name: "Ada Lovelace", number: "39-44-5323523" },
+    { name: "Dan Abramov", number: "12-43-234345" },
+    { name: "Mary Poppendieck", number: "39-23-6423122" },
   ]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -28,7 +58,7 @@ const App = () => {
 
     if (alreadyExist()) alert(`${newName} is already added to phonebook.`);
     else {
-      const newPerson = { name: newName, phone: newPhone };
+      const newPerson = { name: newName, number: newPhone };
       setPersons(persons.concat(newPerson));
       setNewName("");
       setNewPhone("");
@@ -55,24 +85,18 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-        filter shown with <input value={query} onChange={handleQuery} />
-      </div>
-      <h2>add a new</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName} onChange={handleNewName} />
-        </div>
-        <div>
-          number: <input value={newPhone} onChange={handleNewPhone} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
+      <Filter value={query} onChange={handleQuery} />
+      <h3>add a new</h3>
+      <PersonForm
+        onSubmit={addPerson}
+        nameValue={newName}
+        onChangeName={handleNewName}
+        phoneValue={newPhone}
+        onChangePhone={handleNewPhone}
+      />
+      <h3>Numbers</h3>
       {matchingResponse.map((person) => (
-        <Person key={person.id} name={person.name} number={person.number} />
+        <Persons key={person.name} name={person.name} number={person.number} />
       ))}
     </div>
   );
