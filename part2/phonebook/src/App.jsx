@@ -10,10 +10,19 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    const newPerson = { name: newName };
-    setPersons(persons.concat(newPerson));
-    setNewName("");
+
+    if (alreadyExist()) alert(`${newName} is already added to phonebook.`);
+    else {
+      const newPerson = { name: newName };
+      setPersons(persons.concat(newPerson));
+      setNewName("");
+    }
   };
+
+  const alreadyExist = () =>
+    persons.some(
+      (person) => person.name.toLowerCase() == newName.toLowerCase()
+    );
 
   const handleNewName = (event) => {
     setNewName(event.target.value);
