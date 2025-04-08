@@ -1,5 +1,5 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import contactService from "./services/contact";
 
 const Persons = ({ name, number }) => {
   return (
@@ -40,15 +40,14 @@ const PersonForm = ({
 };
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456" },
-    { name: "Ada Lovelace", number: "39-44-5323523" },
-    { name: "Dan Abramov", number: "12-43-234345" },
-    { name: "Mary Poppendieck", number: "39-23-6423122" },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    contactService.getAll().then((contacts) => setPersons(contacts));
+  }, []);
 
   const matchingResponse = persons.filter((person) =>
     person.name.toLowerCase().includes(query.toLowerCase())
@@ -60,10 +59,9 @@ const App = () => {
     if (alreadyExist()) alert(`${newName} is already added to phone book.`);
     else {
       const newPerson = { name: newName, number: newPhone };
-      const baseUrl = `http://localhost:3001/persons`;
       // save contact on the server
-      axios.post(baseUrl, newPerson).then((response) => {
-        setPersons(persons.concat(response.data));
+      contactService.create(newPerson).then((createdPerson) => {
+        setPersons(persons.concat(createdPerson));
         setNewName("");
         setNewPhone("");
       });
