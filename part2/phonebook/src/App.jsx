@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const Persons = ({ name, number }) => {
   return (
@@ -56,12 +57,16 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
 
-    if (alreadyExist()) alert(`${newName} is already added to phonebook.`);
+    if (alreadyExist()) alert(`${newName} is already added to phone book.`);
     else {
       const newPerson = { name: newName, number: newPhone };
-      setPersons(persons.concat(newPerson));
-      setNewName("");
-      setNewPhone("");
+      const baseUrl = `http://localhost:3001/persons`;
+      // save contact on the server
+      axios.post(baseUrl, newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+        setNewName("");
+        setNewPhone("");
+      });
     }
   };
 
