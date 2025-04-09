@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import contactService from "./services/contact";
 
-const Persons = ({ name, number }) => {
+const Persons = ({ name, number, handleDelete }) => {
   return (
     <div>
       {name} {number}
+      <button type="button" onClick={handleDelete}>
+        {" "}
+        delete
+      </button>
     </div>
   );
 };
@@ -68,6 +72,12 @@ const App = () => {
     }
   };
 
+  const deletePerson = (id) => {
+    contactService.remove(id).then((response) => {
+      setPersons(persons.filter((person) => person.id !== response.id));
+    });
+  };
+
   const alreadyExist = () =>
     persons.some(
       (person) => person.name.toLowerCase() == newName.toLowerCase()
@@ -99,7 +109,12 @@ const App = () => {
       />
       <h3>Numbers</h3>
       {matchingResponse.map((person) => (
-        <Persons key={person.name} name={person.name} number={person.number} />
+        <Persons
+          key={person.name}
+          name={person.name}
+          handleDelete={() => deletePerson(person.id)}
+          number={person.number}
+        />
       ))}
     </div>
   );
