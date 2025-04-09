@@ -59,10 +59,31 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-
-    if (alreadyExist()) alert(`${newName} is already added to phone book.`);
-    else {
-      const newPerson = { name: newName, number: newPhone };
+    const newPerson = { name: newName, number: newPhone };
+    if (alreadyExist()) {
+      // ask the user if the number should be updated
+      const response = confirm(
+        `${newPerson.name} is already added to the phone book, replace the number with the new one ?`
+      );
+      if (response) {
+        const person = persons.find((person) => person.name === newPerson.name);
+        if (typeof person !== "undefined") {
+          contactService.update(person.id, newPerson).then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id === response.id ? response : person
+              )
+            );
+            setNewName("");
+            setNewPhone("");
+          });
+        } else {
+          alert(
+            `The data with the name '${newPerson.name}' has been deleted from the server.`
+          );
+        }
+      }
+    } else {
       // save contact on the server
       contactService.create(newPerson).then((createdPerson) => {
         setPersons(persons.concat(createdPerson));
