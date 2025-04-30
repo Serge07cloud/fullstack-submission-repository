@@ -1,53 +1,17 @@
 import { useState, useEffect } from "react";
 import contactService from "./services/contact";
-
-const Persons = ({ name, number, handleDelete }) => {
-  return (
-    <div>
-      {name} {number}
-      <button type="button" onClick={handleDelete}>
-        {" "}
-        delete
-      </button>
-    </div>
-  );
-};
-
-const Filter = ({ value, onChange }) => {
-  return (
-    <div>
-      filter shown with <input value={value} onChange={onChange} />
-    </div>
-  );
-};
-
-const PersonForm = ({
-  onSubmit,
-  nameValue,
-  onChangeName,
-  phoneValue,
-  onChangePhone,
-}) => {
-  return (
-    <form onSubmit={onSubmit}>
-      <div>
-        name: <input value={nameValue} onChange={onChangeName} />
-      </div>
-      <div>
-        number: <input value={phoneValue} onChange={onChangePhone} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  );
-};
+import Persons from "./components/Persons";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [query, setQuery] = useState("");
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertType, setAlertType] = useState("error");
 
   useEffect(() => {
     contactService.getAll().then((contacts) => setPersons(contacts));
@@ -56,6 +20,14 @@ const App = () => {
   const matchingResponse = persons.filter((person) =>
     person.name.toLowerCase().includes(query.toLowerCase())
   );
+
+  const displayFlashMessage = (message, type) => {
+    setAlertType(type);
+    setAlertMessage(message);
+    setTimeout(() => {
+      setAlertMessage(null);
+    }, 5000);
+  };
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -68,18 +40,43 @@ const App = () => {
       if (response) {
         const person = persons.find((person) => person.name === newPerson.name);
         if (typeof person !== "undefined") {
-          contactService.update(person.id, newPerson).then((response) => {
-            setPersons(
-              persons.map((person) =>
-                person.id === response.id ? response : person
-              )
-            );
-            setNewName("");
-            setNewPhone("");
-          });
+          contactService
+            .update(person.id, newPerson)
+            .then((response) => {
+              setPersons(
+                persons.map((person) =>
+                  person.id === response.id ? response : person
+                )
+              );
+              displayFlashMessage(
+                `${response.name}'s contact updated`,
+                "success"
+              );
+              setNewName("");
+              setNewPhone("");
+            })
+            .catch(() => {
+              displayFlashMessage(
+                `Information of '${newPerson.name}' has already been removed from server.`,
+                "error"
+              );
+              setPersons(
+                persons.filter(
+                  (person) =>
+                    person.name.toLowerCase() !== newPerson.name.toLowerCase()
+                )
+              );
+            });
         } else {
-          alert(
-            `The data with the name '${newPerson.name}' has been deleted from the server.`
+          displayFlashMessage(
+            `Information of '${newPerson.name}' has already been removed from server.`,
+            "error"
+          );
+          setPersons(
+            persons.filter(
+              (person) =>
+                person.name.toLowerCase() !== newPerson.name.toLowerCase()
+            )
           );
         }
       }
@@ -87,6 +84,7 @@ const App = () => {
       // save contact on the server
       contactService.create(newPerson).then((createdPerson) => {
         setPersons(persons.concat(createdPerson));
+        displayFlashMessage(`Added ${createdPerson.name}`, "success");
         setNewName("");
         setNewPhone("");
       });
@@ -119,6 +117,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={alertMessage} type={alertType} />
       <Filter value={query} onChange={handleQuery} />
       <h3>add a new</h3>
       <PersonForm
