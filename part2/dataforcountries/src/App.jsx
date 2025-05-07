@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Output from "./components/Output";
+import restCountry from "./services/restCountry";
 
 function App ()
 {
@@ -10,11 +11,7 @@ function App ()
 
   useEffect(() =>
   {
-    const baseUrl = `https://studies.cs.helsinki.fi/restcountries/api/all`;
-    axios.get(baseUrl).then((response) =>
-    {
-      setCountries(response.data);
-    });
+    restCountry.getAll().then((response) => setCountries(response));
   }, []);
 
   const handleChange = (event) => setValue(event.target.value);
@@ -33,6 +30,8 @@ function App ()
     setCountry(value);
   };
 
+  const viewDetails = (countryName) => setCountry(countryName)
+
   if (!countries) return <div>Please wait...</div>;
   return (
     <>
@@ -46,7 +45,7 @@ function App ()
           id="search_value"
         />
       </form>
-      <Output match={ totalMatch } countries={ countriesToShow } />
+      <Output match={ totalMatch } countries={ countriesToShow } handleClick={ viewDetails } />
     </>
   );
 }
