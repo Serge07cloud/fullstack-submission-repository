@@ -1,6 +1,5 @@
 const express = require("express");
 const morgan = require("morgan");
-const cors = require("cors");
 const app = express();
 
 morgan.token("content", (request, response) => {
@@ -13,7 +12,6 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms :content"
   )
 );
-app.use(cors());
 
 let phoneBook = [
   {
