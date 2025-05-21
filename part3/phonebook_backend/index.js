@@ -46,10 +46,6 @@ const generatedId = () => {
   return Math.floor(Math.random() * max);
 };
 
-app.get("/", (request, response) => {
-  response.send("<div>Hello World !</div>");
-});
-
 app.get("/api/info", (request, response) => {
   response.send(`
     <div>Phonebook has info for ${phoneBook.length} people</div>
