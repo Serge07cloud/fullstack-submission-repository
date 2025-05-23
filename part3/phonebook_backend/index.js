@@ -15,6 +15,16 @@ app.use(
   )
 );
 
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "id not formatted properly" });
+  }
+
+  next(error);
+};
+
 let phoneBook = [
   {
     id: "1",
@@ -45,11 +55,6 @@ app.get("/api/persons", (request, response) => {
   });
 });
 
-const generatedId = () => {
-  const max = 2000;
-  return Math.floor(Math.random() * max);
-};
-
 app.get("/api/info", (request, response) => {
   response.send(`
     <div>Phonebook has info for ${phoneBook.length} people</div>
@@ -62,9 +67,11 @@ app.get("/api/persons/:id", (request, response) => {
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = request.params.id;
-  phoneBook = phoneBook.filter((item) => item.id !== id);
-  response.status(204).end();
+  Person.findByIdAndDelete(request.params.id)
+    .then((person) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
 app.post("/api/persons", (request, response) => {
@@ -76,16 +83,6 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  // Test whether name is unique
-  // const exists = phoneBook.some(
-  //   (person) => person.name.toLowerCase() === body.name.toLowerCase()
-  // );
-
-  /* if (exists)
-    response.status(400).json({
-      error: "name must be unique",
-    });
- */
   if (!body.number) {
     response.status(400).json({ error: "missing property number" });
   }
