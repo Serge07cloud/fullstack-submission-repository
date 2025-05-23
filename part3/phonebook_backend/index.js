@@ -1,4 +1,6 @@
+require("dotenv").config();
 const express = require("express");
+const Person = require("./models/person");
 const morgan = require("morgan");
 const app = express();
 
@@ -38,7 +40,9 @@ let phoneBook = [
 
 const currentDateTime = () => new Date();
 app.get("/api/persons", (request, response) => {
-  response.json(phoneBook);
+  Person.find().then((persons) => {
+    response.json(persons);
+  });
 });
 
 const generatedId = () => {
@@ -54,11 +58,7 @@ app.get("/api/info", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = request.params.id;
-  const person = phoneBook.find((person) => person.id === id);
-
-  if (person) response.json(person);
-  else response.status(404).end();
+  Person.findById(request.params.id).then((result) => response.json(result));
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -77,30 +77,30 @@ app.post("/api/persons", (request, response) => {
   }
 
   // Test whether name is unique
-  const exists = phoneBook.some(
-    (person) => person.name.toLowerCase() === body.name.toLowerCase()
-  );
+  // const exists = phoneBook.some(
+  //   (person) => person.name.toLowerCase() === body.name.toLowerCase()
+  // );
 
-  if (exists)
+  /* if (exists)
     response.status(400).json({
       error: "name must be unique",
     });
-
+ */
   if (!body.number) {
     response.status(400).json({ error: "missing property number" });
   }
 
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: generatedId(),
-  };
+  });
 
-  phoneBook.concat(person);
-  response.json(person);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
