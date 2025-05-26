@@ -25,41 +25,21 @@ const errorHandler = (error, request, response, next) => {
   next(error);
 };
 
-let phoneBook = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
 const currentDateTime = () => new Date();
+
 app.get("/api/persons", (request, response) => {
-  Person.find().then((persons) => {
+  Person.find({}).then((persons) => {
     response.json(persons);
   });
 });
 
 app.get("/api/info", (request, response) => {
-  response.send(`
-    <div>Phonebook has info for ${phoneBook.length} people</div>
-    <p>${currentDateTime()}</p>
-    `);
+  Person.find({}).then((result) => {
+    response.send(`
+      <div>Phonebook has info for ${result.length} people</div>
+      <p>${currentDateTime()}</p>
+      `);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
