@@ -5,7 +5,8 @@ import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
 import Notification from "./components/Notification";
 
-const App = () => {
+const App = () =>
+{
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -13,7 +14,8 @@ const App = () => {
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState("error");
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     contactService.getAll().then((contacts) => setPersons(contacts));
   }, []);
 
@@ -21,28 +23,35 @@ const App = () => {
     person.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  const displayFlashMessage = (message, type) => {
+  const displayFlashMessage = (message, type) =>
+  {
     setAlertType(type);
     setAlertMessage(message);
-    setTimeout(() => {
+    setTimeout(() =>
+    {
       setAlertMessage(null);
     }, 5000);
   };
 
-  const addPerson = (event) => {
+  const addPerson = (event) =>
+  {
     event.preventDefault();
     const newPerson = { name: newName, number: newPhone };
-    if (alreadyExist()) {
+    if (alreadyExist())
+    {
       // ask the user if the number should be updated
       const response = confirm(
         `${newPerson.name} is already added to the phone book, replace the number with the new one ?`
       );
-      if (response) {
+      if (response)
+      {
         const person = persons.find((person) => person.name === newPerson.name);
-        if (typeof person !== "undefined") {
+        if (typeof person !== "undefined")
+        {
           contactService
             .update(person.id, newPerson)
-            .then((response) => {
+            .then((response) =>
+            {
               setPersons(
                 persons.map((person) =>
                   person.id === response.id ? response : person
@@ -55,7 +64,8 @@ const App = () => {
               setNewName("");
               setNewPhone("");
             })
-            .catch(() => {
+            .catch(() =>
+            {
               displayFlashMessage(
                 `Information of '${newPerson.name}' has already been removed from server.`,
                 "error"
@@ -67,7 +77,8 @@ const App = () => {
                 )
               );
             });
-        } else {
+        } else
+        {
           displayFlashMessage(
             `Information of '${newPerson.name}' has already been removed from server.`,
             "error"
@@ -80,20 +91,30 @@ const App = () => {
           );
         }
       }
-    } else {
+    } else
+    {
       // save contact on the server
-      contactService.create(newPerson).then((createdPerson) => {
+      contactService.create(newPerson).then((createdPerson) =>
+      {
         setPersons(persons.concat(createdPerson));
         displayFlashMessage(`Added ${createdPerson.name}`, "success");
         setNewName("");
         setNewPhone("");
-      });
+      }).catch((error) =>
+      {
+        displayFlashMessage(
+          `Information of '${error.response.data.error}' has already been removed from server.`,
+          "error"
+        );
+      })
     }
   };
 
-  const deletePerson = (id) => {
-    contactService.remove(id).then((response) => {
-      setPersons(persons.filter((person) => person.id !== response.id));
+  const deletePerson = (id) =>
+  {
+    contactService.remove(id).then(() =>
+    {
+      setPersons(persons.filter((person) => person.id !== id));
     });
   };
 
@@ -102,40 +123,43 @@ const App = () => {
       (person) => person.name.toLowerCase() == newName.toLowerCase()
     );
 
-  const handleNewName = (event) => {
+  const handleNewName = (event) =>
+  {
     setNewName(event.target.value);
   };
 
-  const handleNewPhone = (event) => {
+  const handleNewPhone = (event) =>
+  {
     setNewPhone(event.target.value);
   };
 
-  const handleQuery = (event) => {
+  const handleQuery = (event) =>
+  {
     setQuery(event.target.value);
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={alertMessage} type={alertType} />
-      <Filter value={query} onChange={handleQuery} />
+      <Notification message={ alertMessage } type={ alertType } />
+      <Filter value={ query } onChange={ handleQuery } />
       <h3>add a new</h3>
       <PersonForm
-        onSubmit={addPerson}
-        nameValue={newName}
-        onChangeName={handleNewName}
-        phoneValue={newPhone}
-        onChangePhone={handleNewPhone}
+        onSubmit={ addPerson }
+        nameValue={ newName }
+        onChangeName={ handleNewName }
+        phoneValue={ newPhone }
+        onChangePhone={ handleNewPhone }
       />
       <h3>Numbers</h3>
-      {matchingResponse.map((person) => (
+      { matchingResponse.map((person) => (
         <Persons
-          key={person.name}
-          name={person.name}
-          handleDelete={() => deletePerson(person.id)}
-          number={person.number}
+          key={ person.name }
+          name={ person.name }
+          handleDelete={ () => deletePerson(person.id) }
+          number={ person.number }
         />
-      ))}
+      )) }
     </div>
   );
 };
