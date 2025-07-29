@@ -64,12 +64,9 @@ const App = () =>
               setNewName("");
               setNewPhone("");
             })
-            .catch(() =>
+            .catch((error) =>
             {
-              displayFlashMessage(
-                `Information of '${newPerson.name}' has already been removed from server.`,
-                "error"
-              );
+              displayFlashMessage(error.response.data.error, "error");
               setPersons(
                 persons.filter(
                   (person) =>
@@ -102,10 +99,8 @@ const App = () =>
         setNewPhone("");
       }).catch((error) =>
       {
-        displayFlashMessage(
-          `Information of '${error.response.data.error}' has already been removed from server.`,
-          "error"
-        );
+        console.log(error);
+        displayFlashMessage(error.response.data.error, "error");
       })
     }
   };
